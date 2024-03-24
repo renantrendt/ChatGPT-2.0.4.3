@@ -3,10 +3,29 @@
 <head>
     <meta charset="UTF-8">
     <title>Bloco de Notas</title>
+    <style>
+        html, body {
+            height: 100%;
+            margin: 0;
+            display: flex;
+            flex-direction: column;
+        }
+        textarea {
+            flex: 1;
+            resize: none; /* Impede o redimensionamento manual */
+            padding: 10px;
+            border: none;
+            margin: 0;
+            width: 100%;
+            box-sizing: border-box; /* Inclui o padding no cálculo da largura */
+        }
+        button {
+            margin: 10px;
+        }
+    </style>
 </head>
 <body>
-    <h1>Meu Bloco de Notas</h1>
-    <textarea id="notepad" rows="10" cols="50">Digite suas notas aqui...</textarea>
+    <textarea id="notepad" placeholder="Digite suas notas aqui..."></textarea>
     <button onclick="salvarNota()">Salvar Nota</button>
     <script src="script.js"></script>
 </body>
