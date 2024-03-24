@@ -46,6 +46,53 @@
     <div id="notepad-container">
         <textarea id="notepad" placeholder="Digite suas notas aqui..."></textarea>
     </div>
-    <script src="script.js"></script>
+<script type="module">
+  import { initializeApp } from "https://www.gstatic.com/firebasejs/10.9.0/firebase-app.js";
+  import { getFirestore, collection, addDoc, query, orderBy, onSnapshot, serverTimestamp } from "https://www.gstatic.com/firebasejs/10.9.0/firebase-firestore.js";
+
+  const firebaseConfig = {
+    // sua configuração do Firebase
+  };
+
+  // Inicializar o Firebase
+  const app = initializeApp(firebaseConfig);
+  const db = getFirestore(app);
+
+  document.addEventListener('DOMContentLoaded', () => {
+    // Função para salvar nota no Firestore
+    async function salvarNotaNoFirestore(nota) {
+      try {
+        const docRef = await addDoc(collection(db, "notas"), {
+          texto: nota,
+          timestamp: serverTimestamp()
+        });
+        console.log("Documento escrito com ID: ", docRef.id);
+      } catch (e) {
+        console.error("Erro ao adicionar documento: ", e);
+      }
+    }
+
+    // Função para carregar notas do Firestore
+    function carregarNotasDoFirestore() {
+      const q = query(collection(db, "notas"), orderBy("timestamp", "desc"));
+      onSnapshot(q, (querySnapshot) => {
+        querySnapshot.forEach((doc) => {
+          // Aqui você pode atualizar o DOM com as notas recebidas
+          console.log(doc.id, " => ", doc.data().texto);
+        });
+      });
+    }
+
+    // Exemplo de como chamar salvarNotaNoFirestore quando o usuário digita
+    const notepad = document.getElementById('notepad');
+    notepad.addEventListener('input', (e) => {
+      salvarNotaNoFirestore(e.target.value);
+    });
+
+    // Exemplo de como chamar carregarNotasDoFirestore quando a página carrega
+    carregarNotasDoFirestore();
+  });
+</script>
+
 </body>
 </html>
