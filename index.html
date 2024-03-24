@@ -4,96 +4,86 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Bloco de Notas</title>
-   <style>
-    body {
-        margin: 0;
-        padding: 0;
-        font-family: 'Roboto', sans-serif;
-        background: #F5F5F5;
-        display: flex;
-        justify-content: center;
-        align-items: center;
-        height: 100vh; /* Viewport Height */
-        width: 100vw; /* Viewport Width */
-    }
-    
-    #notepad-container {
-        width: 90%;
-        height: 90%;
-        box-shadow: 0 2px 4px rgba(0,0,0,0.2);
-        overflow: hidden;
-        display: flex;
-        flex-direction: column;
-    }
-    
-    #notepad {
-        flex-grow: 1;
-        resize: none; /* Impede o redimensionamento manual */
-        border: none; /* Remove a borda padrão */
-        padding: 16px;
-        font-size: 16px;
-        line-height: 1.5;
-        box-sizing: border-box; /* Faz com que o padding não afete a largura definida */
-    }
-    
-    /* Adiciona um pouco de espaço no fundo do contêiner da nota */
-    #notepad:focus {
-        outline: none; /* Remove o destaque ao focar */
-    }
-</style>
-
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+            font-family: 'Roboto', sans-serif;
+            background: #F5F5F5;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh; /* Viewport Height */
+            width: 100vw; /* Viewport Width */
+        }
+        #notepad-container {
+            width: 90%;
+            height: 90%;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+        }
+        #notepad {
+            flex-grow: 1;
+            resize: none; /* Impede o redimensionamento manual */
+            border: none; /* Remove a borda padrão */
+            padding: 16px;
+            font-size: 16px;
+            line-height: 1.5;
+            box-sizing: border-box; /* Faz com que o padding não afete a largura definida */
+        }
+        /* Adiciona um pouco de espaço no fundo do contêiner da nota */
+        #notepad:focus {
+            outline: none; /* Remove o destaque ao focar */
+        }
+    </style>
 </head>
 <body>
     <div id="notepad-container">
         <textarea id="notepad" placeholder="Digite suas notas aqui..."></textarea>
     </div>
-<script type="module">
-  import { initializeApp } from "https://www.gstatic.com/firebasejs/10.9.0/firebase-app.js";
-  import { getFirestore, collection, addDoc, query, orderBy, onSnapshot, serverTimestamp } from "https://www.gstatic.com/firebasejs/10.9.0/firebase-firestore.js";
+    <script type="module">
+        // Import the functions you need from the SDKs you need
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.9.0/firebase-app.js";
+        import { getFirestore, collection, addDoc, query, orderBy, onSnapshot, serverTimestamp } from "https://www.gstatic.com/firebasejs/10.9.0/firebase-firestore.js";
+        
+        // Your web app's Firebase configuration
+        const firebaseConfig = {
+            apiKey: "AIzaSyDf26omTERWFV6Sos_4Eeg9AEKcsjQeij4",
+            authDomain: "bloco-de-notas-10af6.firebaseapp.com",
+            projectId: "bloco-de-notas-10af6",
+            storageBucket: "bloco-de-notas-10af6.appspot.com",
+            messagingSenderId: "359945898478",
+            appId: "1:359945898478:web:1c5f001726a99a483a26ff"
+        };
 
-  const firebaseConfig = {
-    // sua configuração do Firebase
-  };
+        // Initialize Firebase
+        const app = initializeApp(firebaseConfig);
+        const db = getFirestore(app);
 
-  // Inicializar o Firebase
-  const app = initializeApp(firebaseConfig);
-  const db = getFirestore(app);
+        document.addEventListener('DOMContentLoaded', () => {
+            const notepad = document.getElementById('notepad');
+            notepad.addEventListener('input', (e) => {
+                const texto = e.target.value;
+                addDoc(collection(db, "notas"), {
+                    texto: texto,
+                    timestamp: serverTimestamp()
+                }).then(docRef => {
+                    console.log("Documento escrito com ID: ", docRef.id);
+                }).catch(e => {
+                    console.error("Erro ao adicionar documento: ", e);
+                });
+            });
 
-  document.addEventListener('DOMContentLoaded', () => {
-    // Função para salvar nota no Firestore
-    async function salvarNotaNoFirestore(nota) {
-      try {
-        const docRef = await addDoc(collection(db, "notas"), {
-          texto: nota,
-          timestamp: serverTimestamp()
+            const q = query(collection(db, "notas"), orderBy("timestamp", "desc"));
+            onSnapshot(q, (querySnapshot) => {
+                querySnapshot.forEach((doc) => {
+                    console.log(doc.id, " => ", doc.data().texto);
+                    // Aqui você pode atualizar o DOM com as notas recebidas
+                });
+            });
         });
-        console.log("Documento escrito com ID: ", docRef.id);
-      } catch (e) {
-        console.error("Erro ao adicionar documento: ", e);
-      }
-    }
-
-    // Função para carregar notas do Firestore
-    function carregarNotasDoFirestore() {
-      const q = query(collection(db, "notas"), orderBy("timestamp", "desc"));
-      onSnapshot(q, (querySnapshot) => {
-        querySnapshot.forEach((doc) => {
-          // Aqui você pode atualizar o DOM com as notas recebidas
-          console.log(doc.id, " => ", doc.data().texto);
-        });
-      });
-    }
-
-    // Exemplo de como chamar salvarNotaNoFirestore quando o usuário digita
-    const notepad = document.getElementById('notepad');
-    notepad.addEventListener('input', (e) => {
-      salvarNotaNoFirestore(e.target.value);
-    });
-
-    // Exemplo de como chamar carregarNotasDoFirestore quando a página carrega
-    carregarNotasDoFirestore();
-  });
-</script>
-
+    </script>
 </body>
 </html>
