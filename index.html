@@ -43,47 +43,61 @@
     <div id="notepad-container">
         <textarea id="notepad" placeholder="Digite suas notas aqui..."></textarea>
     </div>
-    <script type="module">
-        // Import the functions you need from the SDKs you need
-        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.9.0/firebase-app.js";
-        import { getFirestore, collection, addDoc, query, orderBy, onSnapshot, serverTimestamp } from "https://www.gstatic.com/firebasejs/10.9.0/firebase-firestore.js";
-        
-        // Your web app's Firebase configuration
-        const firebaseConfig = {
-            apiKey: "AIzaSyDf26omTERWFV6Sos_4Eeg9AEKcsjQeij4",
-            authDomain: "bloco-de-notas-10af6.firebaseapp.com",
-            projectId: "bloco-de-notas-10af6",
-            storageBucket: "bloco-de-notas-10af6.appspot.com",
-            messagingSenderId: "359945898478",
-            appId: "1:359945898478:web:1c5f001726a99a483a26ff"
-        };
+ <script type="module">
+  import { initializeApp } from "https://www.gstatic.com/firebasejs/10.9.0/firebase-app.js";
+  import { getFirestore, collection, addDoc, query, orderBy, onSnapshot, serverTimestamp } from "https://www.gstatic.com/firebasejs/10.9.0/firebase-firestore.js";
 
-        // Initialize Firebase
-        const app = initializeApp(firebaseConfig);
-        const db = getFirestore(app);
+  // Configuração do Firebase
+  const firebaseConfig = {
+    apiKey: "AIzaSyDf26omTERWFV6Sos_4Eeg9AEKcsjQeij4",
+    authDomain: "bloco-de-notas-10af6.firebaseapp.com",
+    projectId: "bloco-de-notas-10af6",
+    storageBucket: "bloco-de-notas-10af6.appspot.com",
+    messagingSenderId: "359945898478",
+    appId: "1:359945898478:web:1c5f001726a99a483a26ff"
+  };
+  const app = initializeApp(firebaseConfig);
+  const db = getFirestore(app);
 
-        document.addEventListener('DOMContentLoaded', () => {
-            const notepad = document.getElementById('notepad');
-            notepad.addEventListener('input', (e) => {
-                const texto = e.target.value;
-                addDoc(collection(db, "notas"), {
-                    texto: texto,
-                    timestamp: serverTimestamp()
-                }).then(docRef => {
-                    console.log("Documento escrito com ID: ", docRef.id);
-                }).catch(e => {
-                    console.error("Erro ao adicionar documento: ", e);
-                });
-            });
+  let timeoutId = null;
+  function salvarNotaComDebounce(nota) {
+    clearTimeout(timeoutId);
+    timeoutId = setTimeout(() => {
+      salvarNotaNoFirestore(nota);
+    }, 1000); // Espera 1 segundo após a última digitação para salvar
+  }
 
-            const q = query(collection(db, "notas"), orderBy("timestamp", "desc"));
-            onSnapshot(q, (querySnapshot) => {
-                querySnapshot.forEach((doc) => {
-                    console.log(doc.id, " => ", doc.data().texto);
-                    // Aqui você pode atualizar o DOM com as notas recebidas
-                });
-            });
-        });
-    </script>
+  async function salvarNotaNoFirestore(nota) {
+    try {
+      const docRef = await addDoc(collection(db, "notas"), {
+        texto: nota,
+        timestamp: serverTimestamp()
+      });
+      console.log("Documento escrito com ID: ", docRef.id);
+    } catch (e) {
+      console.error("Erro ao adicionar documento: ", e);
+    }
+  }
+
+  function carregarNotasDoFirestore() {
+    const q = query(collection(db, "notas"), orderBy("timestamp", "desc"));
+    onSnapshot(q, (querySnapshot) => {
+      if (!querySnapshot.empty) {
+        const notaMaisRecente = querySnapshot.docs[0].data().texto;
+        document.getElementById('notepad').value = notaMaisRecente;
+      }
+    });
+  }
+
+  document.addEventListener('DOMContentLoaded', () => {
+    const notepad = document.getElementById('notepad');
+    notepad.addEventListener('input', (e) => {
+      salvarNotaComDebounce(e.target.value);
+    });
+
+    carregarNotasDoFirestore();
+  });
+</script>
+
 </body>
 </html>
