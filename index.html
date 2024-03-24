@@ -4,43 +4,44 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Bloco de Notas</title>
-    <style>
-        body {
-            margin: 0;
-            font-family: 'Roboto', sans-serif;
-            background: #F5F5F5;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            height: 100vh;
-            padding: 20px;
-            box-sizing: border-box;
-        }
-        
-        #notepad-container {
-            background: #FFFFFF;
-            width: 100%;
-            max-width: 600px;
-            box-shadow: 0 2px 4px rgba(0,0,0,0.2);
-            border-radius: 4px;
-            overflow: hidden;
-        }
-        
-        #notepad {
-            border: none;
-            padding: 16px;
-            resize: none;
-            width: 100%;
-            height: 150px;
-            box-sizing: border-box;
-            font-size: 16px;
-            line-height: 1.5;
-        }
-        
-        #notepad:focus {
-            outline: none;
-        }
-    </style>
+   <style>
+    body {
+        margin: 0;
+        padding: 0;
+        font-family: 'Roboto', sans-serif;
+        background: #F5F5F5;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        height: 100vh; /* Viewport Height */
+        width: 100vw; /* Viewport Width */
+    }
+    
+    #notepad-container {
+        width: 90%;
+        height: 90%;
+        box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+        overflow: hidden;
+        display: flex;
+        flex-direction: column;
+    }
+    
+    #notepad {
+        flex-grow: 1;
+        resize: none; /* Impede o redimensionamento manual */
+        border: none; /* Remove a borda padrão */
+        padding: 16px;
+        font-size: 16px;
+        line-height: 1.5;
+        box-sizing: border-box; /* Faz com que o padding não afete a largura definida */
+    }
+    
+    /* Adiciona um pouco de espaço no fundo do contêiner da nota */
+    #notepad:focus {
+        outline: none; /* Remove o destaque ao focar */
+    }
+</style>
+
 </head>
 <body>
     <div id="notepad-container">
